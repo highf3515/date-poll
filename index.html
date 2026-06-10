@@ -163,13 +163,17 @@
     const div = document.createElement('div');
     div.className = 'poll-item';
 
-    const dateList = dates.map(d => {
-      const count = votes ? votes.filter(v => v.date_id === d.id && v.available).length : 0;
-      return `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f3f4f6;">
-        <span>${fmtDisplay(d.date)}</span>
-        <span style="color:#7c3aed; font-weight:500;">👍 ${count}명 가능</span>
-      </div>`;
-    }).join('');
+   const dateList = dates.map(d => {
+  const possible = votes ? votes.filter(v => v.date_id === d.id && v.available) : [];
+  const names = possible.map(v => v.user_name).join(', ');
+  return `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #f3f4f6;">
+    <span>${fmtDisplay(d.date)}</span>
+    <span style="text-align:right;">
+      <span style="color:#7c3aed; font-weight:500;">👍 ${possible.length}명 가능</span>
+      ${names ? `<br><span style="font-size:12px; color:#6b7280;">${names}</span>` : ''}
+    </span>
+  </div>`;
+}).join('');
 
     div.innerHTML = `
       <h3 style="font-size:16px; font-weight:500; margin-bottom:10px;">${poll.title}</h3>
