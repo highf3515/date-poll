@@ -286,6 +286,9 @@
       const { error } = await db.from('availability').upsert(rows, { onConflict: 'user_name,date' });
       if (error) { alert('오류: ' + error.message); return; }
       alert('저장됐어! 🎉');
+      availSelected.clear();
+renderAvail();
+renderAvailTags();
       loadAvailResult();
     }
 
