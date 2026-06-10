@@ -127,23 +127,29 @@
         : '날짜를 먼저 선택해주세요';
     }
 
-    async function createPoll() {
-      const title = document.getElementById('title-input').value.trim();
-      if (!title) { document.getElementById('title-input').focus(); return; }
+   async function createPoll() {
+  const title = document.getElementById('title-input').value.trim();
+  if (!title) { document.getElementById('title-input').focus(); return; }
 
-      const { data: poll, error } = await db.from('polls').insert({ title }).select().single();
-      if (error) { alert('오류: ' + error.message); return; }
+  const { data: poll, error } = await db.from('polls').insert({ title }).select().single();
+  if (error) { alert('polls 오류: ' + error.message); return; }
 
-      const dateRows = [...selected].sort().map(date => ({ poll_id: poll.id, date }));
-      await db.from('poll_dates').insert(dateRows);
+  const dateRows = [...selected].sort().map(date => ({ poll_id: poll.id, date }));
+  console.log('저장할 날짜:', dateRows);
 
-      alert('약속이 만들어졌어요! 🎉');
-      selected.clear();
-      document.getElementById('title-input').value = '';
-      render();
-      updateBtn();
-      loadPolls();
-    }
+  const { error: dateError } = await db.from('poll_dates').insert(dateRows);
+  if (dateError) {
+    alert('poll_dates 오류: ' + dateError.message);
+    return;
+  }
+
+  alert('약속이 만들어졌어요! 🎉');
+  selected.clear();
+  document.getElementById('title-input').value = '';
+  render();
+  updateBtn();
+  loadPolls();
+}
 
     async function loadPolls() {
       const { data: polls } = await db.from('polls').select('*');
