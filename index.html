@@ -5,7 +5,27 @@
   <title>날짜 조율</title>
 </head>
 <body>
-  <h1>안녕하세요 👋</h1>
-  <p>날짜 조율 앱 만드는 중!</p>
+  <h1>날짜 조율 앱 🗓️</h1>
+  <p id="status">Supabase 연결 중...</p>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://jxqojqsyanhgkyjquhxn.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_DZ6i9IlsmMsCiFuyHxPO4w_akeZBoQi';
+
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function test() {
+      const { data, error } = await db.from('polls').select('*');
+      if (error) {
+        document.getElementById('status').textContent = '연결 실패 ❌ ' + error.message;
+      } else {
+        document.getElementById('status').textContent = 'Supabase 연결 성공! ✅';
+      }
+    }
+
+    test();
+  </script>
 </body>
 </html>
