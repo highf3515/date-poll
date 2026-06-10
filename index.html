@@ -5,16 +5,15 @@
   <title>날짜 조율</title>
 </head>
 <body>
-  <h1>날짜 조율 앱 🗓️</h1>
+  <h1>날짜 조울 앱 🗓️</h1>
   <p id="status">Supabase 연결 중...</p>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
     const SUPABASE_URL = 'https://jxqojqsyanhgkyjquhxn.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4cW9qcXN5YW5oZ2t5anF1aHhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODM4NTcsImV4cCI6MjA5NjY1OTg1N30.W6UGitKyLFPWTqPt5qpIgPWNW-D6KlfpPO8qz0LQim8';
 
-    const { createClient } = supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     async function test() {
       const { data, error } = await db.from('polls').select('*');
