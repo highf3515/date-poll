@@ -151,21 +151,73 @@
   loadPolls();
 }
 
-    async function loadPolls() {
-      const { data: polls } = await db.from('polls').select('*');
-      const container = document.getElementById('polls');
-      container.innerHTML = '';
-      for (const poll of polls) {
-        const { data: dates } = await db.from('poll_dates').select('*').eq('poll_id', poll.id);
-        const div = document.createElement('div');
-        div.className = 'poll-item';
-        div.innerHTML = `
-          <h3 style="font-size:16px; font-weight:500; margin-bottom:6px;">${poll.title}</h3>
-          <p style="font-size:13px; color:#6b7280;">날짜 후보: ${dates.map(d => fmtDisplay(d.date)).join(', ')}</p>
-        `;
-        container.appendChild(div);
-      }
-    }
+ async function loadPolls() {
+  const { data: polls } = await db.from('polls').select('*');
+  const container = document.getElementById('polls');
+  container.innerHTML = '';
+
+  for (const poll of polls) {
+    const { data: dates } = await db.from('poll_dates').select('*').eq('poll_id', poll.id);
+    const { data: votes } = await db.from('votes').select('*').eq('poll_id', poll.id);
+
+    const div = document.createElement('div');
+    div.className = 'poll-item';
+
+    const dateList = dates.map(d => {
+      const count = votes ? votes.filter(v => v.date_id === d.id && v.available).length : 0;
+      return `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f3f4f6;">
+        <span>${fmtDisplay(d.date)}</span>
+        <span style="color:#7c3aed; font-weight:500;">👍 ${count}명 가능</span>
+      </div>`;
+    }).join('');
+
+    div.innerHTML = `
+      <h3 style="font-size:16px; font-weight:500; margin-bottom:10px;">${poll.title}</h3>
+      ${dateList}
+      <div style="margin-top:12px;">
+        <input type="text" id="name-${poll.id}" placeholder="이름 입력" style="width:60%; margin-right:8px; margin-bottom:0;">
+        <button onclick="vote(${poll.id})" style="padding:8px 16px; background:#7c3aed; color:white; border:none; border-radius:8px; cursor:pointer;">투표하기</button>
+      </div>
+      <div id="vote-form-${poll.id}" style="display:none; margin-top:10px;">
+        ${dates.map(d => `
+          <div style="display:flex; align-items:center; gap:8px; padding:6px 0;">
+            <input type="checkbox" id="check-${d.id}" value="${d.id}">
+            <label for="check-${d.id}">${fmtDisplay(d.date)}</label>
+          </div>
+        `).join('')}
+        <button onclick="submitVote(${poll.id}, [${dates.map(d => d.id).join(',')}])" 
+          style="margin-top:8px; padding:8px 16px; background:#7c3aed; color:white; border:none; border-radius:8px; cursor:pointer;">
+          제출
+        </button>
+      </div>
+    `;
+    container.appendChild(div);
+  }
+}
+
+async function vote(pollId) {
+  const name = document.getElementById('name-' + pollId).value.trim();
+  if (!name) { alert('이름을 입력해줘!'); return; }
+  document.getElementById('vote-form-' + pollId).style.display = 'block';
+}
+
+async function submitVote(pollId, dateIds) {
+  const name = document.getElementById('name-' + pollId).value.trim();
+  if (!name) { alert('이름을 입력해줘!'); return; }
+
+  const rows = dateIds.map(dateId => ({
+    poll_id: pollId,
+    user_name: name,
+    date_id: dateId,
+    available: document.getElementById('check-' + dateId).checked
+  }));
+
+  const { error } = await db.from('votes').insert(rows);
+  if (error) { alert('오류: ' + error.message); return; }
+
+  alert('투표 완료! 🎉');
+  loadPolls();
+}
 
     document.getElementById('prev').onclick = () => {
       cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1);
