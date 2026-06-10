@@ -3,28 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <title>날짜 조율</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    h1 { color: #333; }
+    input { padding: 8px; width: 100%; margin: 8px 0; box-sizing: border-box; }
+    button { padding: 10px 20px; background: #4f46e5; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    button:hover { background: #4338ca; }
+    .poll-item { border: 1px solid #ddd; padding: 16px; margin: 8px 0; border-radius: 8px; }
+  </style>
 </head>
 <body>
-  <h1>날짜 조율 앱🗓️</h1>
-  <p id="status">Supabase 연결 중...</p>
+  <h1>📅 날짜 조율</h1>
+
+  <h2>새 약속 만들기</h2>
+  <input type="text" id="title" placeholder="약속 제목 (예: 1월 회식)">
+  <input type="date" id="date1" >
+  <input type="date" id="date2" >
+  <input type="date" id="date3" >
+  <button onclick="createPoll()">약속 만들기</button>
+
+  <h2>약속 목록</h2>
+  <div id="polls"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
-    const SUPABASE_URL = 'https://jxqojqsyanhgkyjquhxn.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4cW9qcXN5YW5oZ2t5anF1aHhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODM4NTcsImV4cCI6MjA5NjY1OTg1N30.W6UGitKyLFPWTqPt5qpIgPWNW-D6KlfpPO8qz0LQim8';
+    const db = supabase.createClient(
+      'https://jxqojqsyanhgkyjquhxn.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4cW9qcXN5YW5oZ2t5anF1aHhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODM4NTcsImV4cCI6MjA5NjY1OTg1N30.W6UGitKyLFPWTqPt5qpIgPWNW-D6KlfpPO8qz0LQim8'
+    );
 
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // 약속 만들기
+    async function createPoll() {
+      const title = document.getElementById('title').value;
+      const dates = [
+        document.getElementById('date1').value,
+        document.getElementById('date2').value,
+        document.getElementById('date3').value,
+      ].filter(d => d); // 빈 날짜 제거
 
-    async function test() {
-      const { data, error } = await db.from('polls').select('*');
-      if (error) {
-        document.getElementById('status').textContent = '연결 실패 ❌ ' + error.message;
-      } else {
-        document.getElementById('status').textContent = 'Supabase 연결 성공! ✅';
+      if (!title || dates.length === 0) {
+        alert('제목이랑 날짜 최소 1개는 입력해줘!');
+        return;
+      }
+
+      // polls 테이블에 저장
+      const { data: poll, error } = await db.from('polls').insert({ title }).select().single();
+      if (error) { alert('오류: ' + error.message); return; }
+
+      // poll_dates 테이블에 날짜들 저장
+      const dateRows = dates.map(date => ({ poll_id: poll.id, date }));
+      await db.from('poll_dates').insert(dateRows);
+
+      alert('약속이 만들어졌어요! 🎉');
+      loadPolls();
+    }
+
+    // 약속 목록 불러오기
+    async function loadPolls() {
+      const { data: polls } = await db.from('polls').select('*');
+      const container = document.getElementById('polls');
+      container.innerHTML = '';
+
+      for (const poll of polls) {
+        const { data: dates } = await db.from('poll_dates').select('*').eq('poll_id', poll.id);
+        const div = document.createElement('div');
+        div.className = 'poll-item';
+        div.innerHTML = `
+          <h3>${poll.title}</h3>
+          <p>날짜 후보: ${dates.map(d => d.date).join(', ')}</p>
+        `;
+        container.appendChild(div);
       }
     }
 
-    test();
+    loadPolls();
   </script>
 </body>
 </html>
