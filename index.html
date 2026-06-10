@@ -3,26 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <title>날짜 조율</title>
-  <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
-    h1 { color: #333; }
-    input { padding: 8px; width: 100%; margin: 8px 0; box-sizing: border-box; }
-    button { padding: 10px 20px; background: #4f46e5; color: white; border: none; border-radius: 6px; cursor: pointer; }
-    button:hover { background: #4338ca; }
-    .poll-item { border: 1px solid #ddd; padding: 16px; margin: 8px 0; border-radius: 8px; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
   <h1>📅 날짜 조율</h1>
 
-  <h2>새 약속 만들기</h2>
-  <input type="text" id="title" placeholder="약속 제목 (예: 1월 회식)">
-  <input type="date" id="date1" >
-  <input type="date" id="date2" >
-  <input type="date" id="date3" >
-  <button onclick="createPoll()">약속 만들기</button>
+  <div class="card">
+    <div class="cal-header">
+      <button class="cal-nav" id="prev">&#8592;</button>
+      <span class="cal-month" id="month-label"></span>
+      <button class="cal-nav" id="next">&#8594;</button>
+    </div>
+    <div class="cal-grid" id="cal-dow">
+      <div class="cal-dow">일</div>
+      <div class="cal-dow">월</div>
+      <div class="cal-dow">화</div>
+      <div class="cal-dow">수</div>
+      <div class="cal-dow">목</div>
+      <div class="cal-dow">금</div>
+      <div class="cal-dow">토</div>
+    </div>
+    <div class="cal-grid" id="cal-days"></div>
 
-  <h2>약속 목록</h2>
+    <div id="selected-wrap" style="display:none; margin-top:0.75rem; border-top:1px solid #e5e7eb; padding-top:0.75rem;">
+      <div style="font-size:13px; color:#6b7280; margin-bottom:6px;">선택된 날짜</div>
+      <div class="selected-tags" id="tags"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label for="title-input">약속 제목</label>
+    <input type="text" id="title-input" placeholder="예: 1월 회식">
+    <p class="hint" id="hint">날짜를 먼저 선택해주세요</p>
+    <button class="btn" id="create-btn" disabled>약속 만들기</button>
+  </div>
+
+  <h2 style="font-size:18px; font-weight:500; margin-bottom:0.75rem;">약속 목록</h2>
   <div id="polls"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -32,50 +49,129 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4cW9qcXN5YW5oZ2t5anF1aHhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODM4NTcsImV4cCI6MjA5NjY1OTg1N30.W6UGitKyLFPWTqPt5qpIgPWNW-D6KlfpPO8qz0LQim8'
     );
 
-    // 약속 만들기
-    async function createPoll() {
-      const title = document.getElementById('title').value;
-      const dates = [
-        document.getElementById('date1').value,
-        document.getElementById('date2').value,
-        document.getElementById('date3').value,
-      ].filter(d => d); // 빈 날짜 제거
+    const selected = new Set();
+    let cur = new Date();
 
-      if (!title || dates.length === 0) {
-        alert('제목이랑 날짜 최소 1개는 입력해줘!');
-        return;
+    function fmt(y, m, d) {
+      return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    }
+
+    function fmtDisplay(str) {
+      const [y, m, d] = str.split('-');
+      return y + '년 ' + Number(m) + '월 ' + Number(d) + '일';
+    }
+
+    function render() {
+      const y = cur.getFullYear(), m = cur.getMonth();
+      document.getElementById('month-label').textContent = y + '년 ' + (m + 1) + '월';
+      const grid = document.getElementById('cal-days');
+      grid.innerHTML = '';
+      const first = new Date(y, m, 1).getDay();
+      const days = new Date(y, m + 1, 0).getDate();
+      const today = new Date();
+
+      for (let i = 0; i < first; i++) {
+        const d = document.createElement('div');
+        d.className = 'cal-day empty';
+        grid.appendChild(d);
       }
 
-      // polls 테이블에 저장
+      for (let d = 1; d <= days; d++) {
+        const key = fmt(y, m, d);
+        const el = document.createElement('div');
+        el.className = 'cal-day' + (selected.has(key) ? ' selected' : '');
+        if (today.getFullYear() === y && today.getMonth() === m && today.getDate() === d) {
+          el.classList.add('today');
+        }
+        el.textContent = d;
+        el.onclick = () => toggle(key);
+        grid.appendChild(el);
+      }
+      renderTags();
+    }
+
+    function toggle(key) {
+      if (selected.has(key)) selected.delete(key);
+      else selected.add(key);
+      render();
+      updateBtn();
+    }
+
+    function renderTags() {
+      const wrap = document.getElementById('selected-wrap');
+      const tags = document.getElementById('tags');
+      const sorted = [...selected].sort();
+      if (sorted.length === 0) { wrap.style.display = 'none'; return; }
+      wrap.style.display = 'block';
+      tags.innerHTML = '';
+      sorted.forEach(k => {
+        const t = document.createElement('div');
+        t.className = 'tag';
+        t.innerHTML = fmtDisplay(k) + '<span class="tag-x" data-k="' + k + '">×</span>';
+        t.querySelector('.tag-x').onclick = e => {
+          selected.delete(e.target.dataset.k);
+          render();
+          updateBtn();
+        };
+        tags.appendChild(t);
+      });
+    }
+
+    function updateBtn() {
+      const has = selected.size > 0;
+      const btn = document.getElementById('create-btn');
+      const hint = document.getElementById('hint');
+      btn.disabled = !has;
+      hint.textContent = has
+        ? selected.size + '개 날짜 선택됨 — 제목을 입력하고 만들기를 눌러주세요'
+        : '날짜를 먼저 선택해주세요';
+    }
+
+    async function createPoll() {
+      const title = document.getElementById('title-input').value.trim();
+      if (!title) { document.getElementById('title-input').focus(); return; }
+
       const { data: poll, error } = await db.from('polls').insert({ title }).select().single();
       if (error) { alert('오류: ' + error.message); return; }
 
-      // poll_dates 테이블에 날짜들 저장
-      const dateRows = dates.map(date => ({ poll_id: poll.id, date }));
+      const dateRows = [...selected].sort().map(date => ({ poll_id: poll.id, date }));
       await db.from('poll_dates').insert(dateRows);
 
       alert('약속이 만들어졌어요! 🎉');
+      selected.clear();
+      document.getElementById('title-input').value = '';
+      render();
+      updateBtn();
       loadPolls();
     }
 
-    // 약속 목록 불러오기
     async function loadPolls() {
       const { data: polls } = await db.from('polls').select('*');
       const container = document.getElementById('polls');
       container.innerHTML = '';
-
       for (const poll of polls) {
         const { data: dates } = await db.from('poll_dates').select('*').eq('poll_id', poll.id);
         const div = document.createElement('div');
         div.className = 'poll-item';
         div.innerHTML = `
-          <h3>${poll.title}</h3>
-          <p>날짜 후보: ${dates.map(d => d.date).join(', ')}</p>
+          <h3 style="font-size:16px; font-weight:500; margin-bottom:6px;">${poll.title}</h3>
+          <p style="font-size:13px; color:#6b7280;">날짜 후보: ${dates.map(d => fmtDisplay(d.date)).join(', ')}</p>
         `;
         container.appendChild(div);
       }
     }
 
+    document.getElementById('prev').onclick = () => {
+      cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1);
+      render();
+    };
+    document.getElementById('next').onclick = () => {
+      cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+      render();
+    };
+    document.getElementById('create-btn').onclick = createPoll;
+
+    render();
     loadPolls();
   </script>
 </body>
