@@ -271,8 +271,8 @@ async function loadPollData() {
         const namesForDay = allAvailability.filter(a => a.date === key).map(a => a.user_name);
         if (namesForDay.length > 0) {
           const nameTag = document.createElement('div');
-          nameTag.style.cssText = 'font-size:11px; font-weight:600; color:white; background:#7fb5ee; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; position:absolute; top:-4px; right:-4px; box-shadow:0 1px 3px rgba(0,0,0,0.15);';
-          nameTag.textContent = namesForDay.length;
+          nameTag.style.cssText = 'font-size:10px; font-weight:600; color:#2d4a5c; background:#A9D3FF; border-radius:6px; padding:0 4px; line-height:1.4;';
+          nameTag.textContent = namesForDay.length + '명';
           el.appendChild(nameTag);
         }
         el.onclick = () => {
