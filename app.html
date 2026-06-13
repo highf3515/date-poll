@@ -80,6 +80,10 @@
       document.getElementById('tab-' + tab).classList.add('active');
       event.target.classList.add('active');
     }
+    function copyInviteCode() {
+      navigator.clipboard.writeText(currentGroup.inviteCode);
+      alert('초대코드가 복사됐어요! 📋');
+    }
 
     function fmt(y, m, d) { return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); }
     function fmtDisplay(str) { const [y, m, d] = str.split('-'); return y + '년 ' + Number(m) + '월 ' + Number(d) + '일'; }
@@ -379,7 +383,10 @@ async function loadPollData() {
 
       document.getElementById('group-info').innerHTML = `
         <div style="font-weight:500;">${currentGroup.name}</div>
-        <div style="font-size:12px; color:#93ACB5; margin-top:4px;">초대코드: ${currentGroup.inviteCode} · 내 이름: ${currentGroup.displayName}</div>
+        <div style="font-size:12px; color:#93ACB5; margin-top:4px; display:flex; align-items:center; gap:6px;">
+          초대코드: ${currentGroup.inviteCode} · 내 이름: ${currentGroup.displayName}
+          <button class="small-btn" style="padding:2px 8px; font-size:11px;" onclick="copyInviteCode()">복사</button>
+        </div>
       `;
 
       await loadPollData();
