@@ -307,12 +307,14 @@ if (namesForDay.length > 0) {
     }
 
     async function deleteAvail(id) {
-      if (!confirm('이 데이터를 삭제할까요?')) return;
-      await db.from('availability').delete().eq('id', id);
-      await loadAvailData();
-      renderAvail();
-      if (activeAvailDate) showAvailDateInfo(activeAvailDate);
-    }
+  if (!confirm('이 데이터를 삭제할까요?')) return;
+  await db.from('availability').delete().eq('id', id);
+  await loadAvailData();
+  availSelected.clear();
+  renderAvail();
+  renderAvailTags();
+  if (activeAvailDate) showAvailDateInfo(activeAvailDate);
+}
 
     async function submitAvail() {
       const name = document.getElementById('avail-name').value.trim();
