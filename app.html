@@ -62,6 +62,7 @@
         <div class="selected-tags" id="avail-tags"></div>
       </div>
       <button class="btn" style="margin-top:1rem;" onclick="submitAvail()">저장하기</button>
+      <button class="btn" style="margin-top:8px; background:#6C756B;" onclick="deleteSelectedAvail()">선택한 날짜 내 데이터 삭제</button>
       <div id="avail-date-info" class="info-panel empty">날짜를 클릭하면 그날 가능한 사람 목록이 여기 표시돼요</div>
     </div>
   </div>
@@ -344,6 +345,26 @@ async function loadPollData() {
       renderAvail(); renderAvailTags();
       if (activeAvailDate) showAvailDateInfo(activeAvailDate);
     }
+    async function deleteSelectedAvail() {
+  const name = currentGroup.displayName;
+  if (availSelected.size === 0) { alert('날짜를 선택해줘!'); return; }
+  if (!confirm('선택한 날짜 중 내 데이터를 삭제할까요?')) return;
+
+  const dates = [...availSelected];
+  const { error } = await db.from('availability')
+    .delete()
+    .eq('user_name', name)
+    .eq('group_id', currentGroup.id)
+    .in('date', dates);
+
+  if (error) { alert('오류: ' + error.message); return; }
+
+  availSelected.clear();
+  await loadAvailData();
+  renderAvail(); renderAvailTags();
+  if (activeAvailDate) showAvailDateInfo(activeAvailDate);
+  alert('삭제 완료!');
+}
 
     document.getElementById('prev').onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1); render(); };
     document.getElementById('next').onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1); render(); };
