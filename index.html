@@ -2,362 +2,47 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>날짜 조율</title>
-  <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>날짜 조율 - 로그인</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <h1>📅 날짜 조율</h1>
-
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('poll')">📋 날짜 투표</button>
-    <button class="tab" onclick="switchTab('avail')">🗓️ 가능한 날짜</button>
-  </div>
-
-  <!-- 탭 1: 날짜 투표 -->
-  <div class="section active" id="tab-poll">
-    <div class="card">
-      <div class="cal-header">
-        <button class="cal-nav" id="prev">&#8592;</button>
-        <span class="cal-month" id="month-label"></span>
-        <button class="cal-nav" id="next">&#8594;</button>
-      </div>
-      <div class="cal-grid" id="cal-dow">
-        <div class="cal-dow">일</div><div class="cal-dow">월</div><div class="cal-dow">화</div>
-        <div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div><div class="cal-dow">토</div>
-      </div>
-      <div class="cal-grid" id="cal-days"></div>
-      <div id="selected-wrap" style="display:none; margin-top:0.75rem; border-top:1px solid #e5e7eb; padding-top:0.75rem;">
-        <div style="font-size:13px; color:#6b7280; margin-bottom:6px;">선택된 날짜</div>
-        <div class="selected-tags" id="tags"></div>
-      </div>
-      <div id="poll-date-info" class="info-panel empty">날짜를 클릭하면 해당 날짜의 약속/투표 현황이 여기 표시돼요</div>
-    </div>
-    <div class="card">
-      <label for="title-input">약속 제목</label>
-      <input type="text" id="title-input" placeholder="예: 1월 회식">
-      <p class="hint" id="hint">날짜를 먼저 선택해주세요</p>
-      <button class="btn" id="create-btn" disabled>약속 만들기</button>
-    </div>
-  </div>
-
-  <!-- 탭 2: 가능한 날짜 -->
-  <div class="section" id="tab-avail">
-    <div class="card">
-      <label>이름 입력</label>
-      <input type="text" id="avail-name" placeholder="내 이름">
-      <div class="cal-header" style="margin-top:1rem;">
-        <button class="cal-nav" id="avail-prev">&#8592;</button>
-        <span class="cal-month" id="avail-month-label"></span>
-        <button class="cal-nav" id="avail-next">&#8594;</button>
-      </div>
-      <div class="cal-grid" id="avail-cal-dow">
-        <div class="cal-dow">일</div><div class="cal-dow">월</div><div class="cal-dow">화</div>
-        <div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div><div class="cal-dow">토</div>
-      </div>
-      <div class="cal-grid" id="avail-cal-days"></div>
-      <div id="avail-selected-wrap" style="display:none; margin-top:0.75rem; border-top:1px solid #e5e7eb; padding-top:0.75rem;">
-        <div style="font-size:13px; color:#6b7280; margin-bottom:6px;">선택된 날짜</div>
-        <div class="selected-tags" id="avail-tags"></div>
-      </div>
-      <button class="btn" style="margin-top:1rem;" onclick="submitAvail()">저장하기</button>
-      <div id="avail-date-info" class="info-panel empty">날짜를 클릭하면 그날 가능한 사람 목록이 여기 표시돼요</div>
-    </div>
+  <div class="card">
+    <h1 style="margin-bottom:1rem;">📅 날짜 조율</h1>
+    <h2 style="font-size:18px; font-weight:500; margin-bottom:1rem;">로그인 / 회원가입</h2>
+    <label>이메일</label>
+    <input type="text" id="auth-email" placeholder="email@example.com">
+    <label>비밀번호</label>
+    <input type="text" id="auth-password" placeholder="6자 이상">
+    <button class="btn" onclick="signUp()" style="margin-bottom:8px;">회원가입</button>
+    <button class="btn" onclick="signIn()" style="background:#6C756B;">로그인</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase.js"></script>
   <script>
-    const db = supabase.createClient(
-      'https://jxqojqsyanhgkyjquhxn.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4cW9qcXN5YW5oZ2t5anF1aHhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwODM4NTcsImV4cCI6MjA5NjY1OTg1N30.W6UGitKyLFPWTqPt5qpIgPWNW-D6KlfpPO8qz0LQim8'
-    );
-
-    function switchTab(tab) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById('tab-' + tab).classList.add('active');
-      event.target.classList.add('active');
-    }
-
-    function fmt(y, m, d) { return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); }
-    function fmtDisplay(str) { const [y, m, d] = str.split('-'); return y + '년 ' + Number(m) + '월 ' + Number(d) + '일'; }
-
-    // ── 탭1: 날짜 투표 ──
-    const selected = new Set();
-    let cur = new Date();
-    let allPolls = [], allPollDates = [], allVotes = [];
-    let activePollDate = null;
-
-    function render() {
-      const y = cur.getFullYear(), m = cur.getMonth();
-      document.getElementById('month-label').textContent = y + '년 ' + (m + 1) + '월';
-      const grid = document.getElementById('cal-days');
-      grid.innerHTML = '';
-      const first = new Date(y, m, 1).getDay();
-      const days = new Date(y, m + 1, 0).getDate();
-      const today = new Date();
-      for (let i = 0; i < first; i++) {
-        const d = document.createElement('div'); d.className = 'cal-day empty'; grid.appendChild(d);
-      }
-      for (let d = 1; d <= days; d++) {
-        const key = fmt(y, m, d);
-        const el = document.createElement('div');
-        el.className = 'cal-day' + (selected.has(key) ? ' selected' : '');
-        if (today.getFullYear() === y && today.getMonth() === m && today.getDate() === d) el.classList.add('today');
-        el.textContent = d;
-        if (allPollDates.some(pd => pd.date === key)) {
-          const dot = document.createElement('div');
-          dot.className = 'cal-dot';
-          el.appendChild(dot);
-        }
-        el.onclick = () => { toggle(key); showPollDateInfo(key); };
-        grid.appendChild(el);
-      }
-      renderTags();
-    }
-
-    function toggle(key) {
-  if (selected.has(key)) {
-    selected.clear();
-  } else {
-    selected.clear();
-    selected.add(key);
-  }
-  render(); updateBtn();
-}
-
-    function renderTags() {
-      const wrap = document.getElementById('selected-wrap');
-      const tags = document.getElementById('tags');
-      const sorted = [...selected].sort();
-      if (sorted.length === 0) { wrap.style.display = 'none'; return; }
-      wrap.style.display = 'block';
-      tags.innerHTML = '';
-      sorted.forEach(k => {
-        const t = document.createElement('div');
-        t.className = 'tag';
-        t.innerHTML = fmtDisplay(k) + '<span class="tag-x" data-k="' + k + '">×</span>';
-        t.querySelector('.tag-x').onclick = e => { selected.delete(e.target.dataset.k); render(); updateBtn(); };
-        tags.appendChild(t);
-      });
-    }
-
-    function updateBtn() {
-      const has = selected.size > 0;
-      document.getElementById('create-btn').disabled = !has;
-      document.getElementById('hint').textContent = has
-        ? selected.size + '개 날짜 선택됨 — 제목을 입력하고 만들기를 눌러주세요'
-        : '날짜를 먼저 선택해주세요';
-    }
-
-    async function createPoll() {
-      const title = document.getElementById('title-input').value.trim();
-      if (!title) { document.getElementById('title-input').focus(); return; }
-      const { data: poll, error } = await db.from('polls').insert({ title }).select().single();
+    async function signUp() {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      if (!email || !password) { alert('이메일과 비밀번호를 입력해줘!'); return; }
+      const { error } = await db.auth.signUp({ email, password });
       if (error) { alert('오류: ' + error.message); return; }
-      const dateRows = [...selected].sort().map(date => ({ poll_id: poll.id, date }));
-      const { error: dateError } = await db.from('poll_dates').insert(dateRows);
-      if (dateError) { alert('날짜 오류: ' + dateError.message); return; }
-      alert('약속이 만들어졌어요! 🎉');
-      selected.clear();
-      document.getElementById('title-input').value = '';
-      await loadPollData();
-      render(); updateBtn();
+      alert('가입 완료! 로그인 해줘');
     }
 
-    async function loadPollData() {
-      const { data: polls } = await db.from('polls').select('*');
-      const { data: dates } = await db.from('poll_dates').select('*');
-      const { data: votes } = await db.from('votes').select('*');
-      allPolls = polls || [];
-      allPollDates = dates || [];
-      allVotes = votes || [];
-    }
-
-    function showPollDateInfo(key) {
-      activePollDate = key;
-      const panel = document.getElementById('poll-date-info');
-      const matches = allPollDates.filter(pd => pd.date === key);
-      if (matches.length === 0) {
-        panel.className = 'info-panel empty';
-        panel.innerHTML = fmtDisplay(key) + ' — 이 날짜에 등록된 약속이 없어요';
-        return;
-      }
-      panel.className = 'info-panel';
-      panel.innerHTML = '<div style="font-weight:500; margin-bottom:8px;">' + fmtDisplay(key) + '</div>' +
-        matches.map(pd => {
-          const poll = allPolls.find(p => p.id === pd.poll_id);
-          const votesForDate = allVotes.filter(v => v.date_id === pd.id && v.available);
-          const names = votesForDate.map(v => v.user_name).join(', ') || '아직 없음';
-          return `<div class="info-item">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong>${poll ? poll.title : '(삭제됨)'}</strong>
-              <button class="small-btn" onclick="deletePollDate(${pd.poll_id}, ${pd.id})">이 날짜 삭제</button>
-            </div>
-            <div style="font-size:13px; color:#6b7280; margin-top:4px;">👍 ${votesForDate.length}명 가능 — ${names}</div>
-            <div style="margin-top:8px;">
-              <input type="text" id="vname-${pd.id}" placeholder="이름 입력" style="width:55%; margin-right:6px; margin-bottom:0;">
-              <button class="small-btn" style="color:#7c3aed; border-color:#7c3aed;" onclick="quickVote(${pd.poll_id}, ${pd.id})">가능 투표</button>
-            </div>
-          </div>`;
-        }).join('');
-    }
-
-    async function quickVote(pollId, dateId) {
-      const input = document.getElementById('vname-' + dateId);
-      const name = input.value.trim();
-      if (!name) { alert('이름을 입력해줘!'); return; }
-      const { error } = await db.from('votes').insert({ poll_id: pollId, user_name: name, date_id: dateId, available: true });
+    async function signIn() {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      if (!email || !password) { alert('이메일과 비밀번호를 입력해줘!'); return; }
+      const { error } = await db.auth.signInWithPassword({ email, password });
       if (error) { alert('오류: ' + error.message); return; }
-      await loadPollData();
-      render();
-      showPollDateInfo(activePollDate);
+      location.href = 'groups.html';
     }
 
-   async function deletePollDate(pollId, pollDateId) {
-  if (!confirm('이 날짜를 삭제할까요? 이 날짜의 투표도 같이 삭제돼요.')) return;
-  await db.from('votes').delete().eq('date_id', pollDateId);
-  await db.from('poll_dates').delete().eq('id', pollDateId);
-
-  const { data: remaining } = await db.from('poll_dates').select('id').eq('poll_id', pollId);
-  if (!remaining || remaining.length === 0) {
-    await db.from('polls').delete().eq('id', pollId);
-  }
-
-  await loadPollData();
-  render();
-  showPollDateInfo(activePollDate);
-}
-
-    document.getElementById('prev').onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1); render(); };
-    document.getElementById('next').onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1); render(); };
-    document.getElementById('create-btn').onclick = createPoll;
-
-    // ── 탭2: 가능한 날짜 ──
-    const availSelected = new Set();
-    let availCur = new Date();
-    let allAvailability = [];
-    let activeAvailDate = null;
-
-    function renderAvail() {
-      const y = availCur.getFullYear(), m = availCur.getMonth();
-      document.getElementById('avail-month-label').textContent = y + '년 ' + (m + 1) + '월';
-      const grid = document.getElementById('avail-cal-days');
-      grid.innerHTML = '';
-      const first = new Date(y, m, 1).getDay();
-      const days = new Date(y, m + 1, 0).getDate();
-      for (let i = 0; i < first; i++) {
-        const d = document.createElement('div'); d.className = 'cal-day empty'; grid.appendChild(d);
-      }
-      for (let d = 1; d <= days; d++) {
-        const key = fmt(y, m, d);
-        const el = document.createElement('div');
-        el.className = 'cal-day' + (availSelected.has(key) ? ' selected' : '');
-        el.textContent = d;
-        const namesForDay = allAvailability.filter(a => a.date === key).map(a => a.user_name);
-if (namesForDay.length > 0) {
-  const nameTag = document.createElement('div');
-  nameTag.style.cssText = 'font-size:9px; color:#7c3aed; margin-top:2px; line-height:1.2; max-height:24px; overflow:hidden;';
-  nameTag.textContent = namesForDay.join(', ');
-  el.appendChild(nameTag);
-}
-        el.onclick = () => {
-          if (availSelected.has(key)) availSelected.delete(key); else availSelected.add(key);
-          renderAvail(); renderAvailTags(); showAvailDateInfo(key);
-        };
-        grid.appendChild(el);
-      }
-    }
-
-    function renderAvailTags() {
-      const wrap = document.getElementById('avail-selected-wrap');
-      const tags = document.getElementById('avail-tags');
-      const sorted = [...availSelected].sort();
-      if (sorted.length === 0) { wrap.style.display = 'none'; return; }
-      wrap.style.display = 'block';
-      tags.innerHTML = '';
-      sorted.forEach(k => {
-        const t = document.createElement('div');
-        t.className = 'tag';
-        t.innerHTML = fmtDisplay(k) + '<span class="tag-x" data-k="' + k + '">×</span>';
-        t.querySelector('.tag-x').onclick = e => { availSelected.delete(e.target.dataset.k); renderAvail(); renderAvailTags(); };
-        tags.appendChild(t);
-      });
-    }
-
-    async function loadAvailData() {
-      const { data, error } = await db.from('availability').select('*');
-      if (error) { console.error(error); return; }
-      allAvailability = data || [];
-    }
-
-    function showAvailDateInfo(key) {
-      activeAvailDate = key;
-      const panel = document.getElementById('avail-date-info');
-      const matches = allAvailability.filter(a => a.date === key);
-      if (matches.length === 0) {
-        panel.className = 'info-panel empty';
-        panel.innerHTML = fmtDisplay(key) + ' — 아직 가능하다고 한 사람이 없어요';
-        return;
-      }
-      panel.className = 'info-panel';
-      panel.innerHTML = '<div style="font-weight:500; margin-bottom:8px;">' + fmtDisplay(key) + ' — ' + matches.length + '명 가능</div>' +
-  matches.map(a => `<div class="info-item" style="display:flex; justify-content:space-between; align-items:center;">
-    <span>${a.user_name}</span>
-    <span>
-      <button class="small-btn" style="color:#7c3aed; border-color:#7c3aed;" onclick="editAvail(${a.id}, '${a.date}', '${a.user_name}')">수정</button>
-      <button class="small-btn" onclick="deleteAvail(${a.id})">삭제</button>
-    </span>
-  </div>`).join('');
-    }
-
-    async function deleteAvail(id) {
-  if (!confirm('이 데이터를 삭제할까요?')) return;
-  await db.from('availability').delete().eq('id', id);
-  await loadAvailData();
-  availSelected.clear();
-  renderAvail();
-  renderAvailTags();
-  if (activeAvailDate) showAvailDateInfo(activeAvailDate);
-}
-
-    async function submitAvail() {
-      const name = document.getElementById('avail-name').value.trim();
-      if (!name) { alert('이름을 입력해줘!'); return; }
-      if (availSelected.size === 0) { alert('날짜를 선택해줘!'); return; }
-      const rows = [...availSelected].sort().map(date => ({ user_name: name, date: date }));
-      const { error } = await db.from('availability').upsert(rows, { onConflict: 'user_name,date' });
-      if (error) { alert('오류: ' + error.message); return; }
-      alert('저장됐어! 🎉');
-      availSelected.clear();
-      await loadAvailData();
-      renderAvail(); renderAvailTags();
-      if (activeAvailDate) showAvailDateInfo(activeAvailDate);
-    }
-    async function editAvail(id, date, name) {
-  if (!confirm('이 항목을 수정할까요? (기존 데이터는 삭제되고, 새로 입력 후 저장해야 해요)')) return;
-  await db.from('availability').delete().eq('id', id);
-  await loadAvailData();
-  availSelected.clear();
-  availSelected.add(date);
-  renderAvail();
-  renderAvailTags();
-  if (activeAvailDate) showAvailDateInfo(activeAvailDate);
-
-  document.getElementById('avail-name').value = name;
-  document.getElementById('avail-name').scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-    document.getElementById('avail-prev').onclick = () => { availCur = new Date(availCur.getFullYear(), availCur.getMonth() - 1, 1); renderAvail(); };
-    document.getElementById('avail-next').onclick = () => { availCur = new Date(availCur.getFullYear(), availCur.getMonth() + 1, 1); renderAvail(); };
-
-    // 초기 로딩
     (async () => {
-      await loadPollData();
-      render();
-      await loadAvailData();
-      renderAvail();
+      const { data } = await db.auth.getSession();
+      if (data.session) location.href = 'groups.html';
     })();
   </script>
 </body>
