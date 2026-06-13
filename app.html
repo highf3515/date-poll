@@ -30,14 +30,11 @@
         <div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div><div class="cal-dow">토</div>
       </div>
       <div class="cal-grid" id="cal-days"></div>
-      <div id="avail-selected-wrap" style="display:none; margin-top:0.75rem;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-        <span style="font-size:13px; color:#93ACB5;">선택된 날짜</span>
-        <button class="small-btn" style="font-size:11px; padding:2px 8px;" onclick="clearAvailSelection()">전체 해제</button>
-      </div>
-      <div class="selected-tags" id="avail-tags"></div>
-    </div>
-      <div id="poll-date-info" class="info-panel empty">날짜를 클릭하면 해당 날짜의 약속/투표 현황이 여기 표시돼요</div>
+<div id="selected-wrap" style="display:none; margin-top:0.75rem;">
+  <div style="font-size:13px; color:#93ACB5; margin-bottom:6px;">선택된 날짜</div>
+  <div class="selected-tags" id="tags"></div>
+</div>
+  <div id="poll-date-info" class="info-panel empty">날짜를 클릭하면 해당 날짜의 약속/투표 현황이 여기 표시돼요</div>
     </div>
     <div class="card">
       <label for="title-input">약속 제목</label>
@@ -61,9 +58,12 @@
       </div>
       <div class="cal-grid" id="avail-cal-days"></div>
       <div id="avail-selected-wrap" style="display:none; margin-top:0.75rem;">
-        <div style="font-size:13px; color:#93ACB5; margin-bottom:6px;">선택된 날짜</div>
-        <div class="selected-tags" id="avail-tags"></div>
-      </div>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+    <span style="font-size:13px; color:#93ACB5;">선택된 날짜</span>
+    <button class="small-btn" style="font-size:11px; padding:2px 8px;" onclick="clearAvailSelection()">전체 해제</button>
+  </div>
+  <div class="selected-tags" id="avail-tags"></div>
+</div>
       <button class="btn" style="margin-top:1rem;" onclick="submitAvail()">저장하기</button>
       <button class="btn" style="margin-top:8px; background:#6C756B;" onclick="deleteSelectedAvail()">선택한 날짜 내 데이터 삭제</button>
       <div id="avail-date-info" class="info-panel empty">날짜를 클릭하면 그날 가능한 사람 목록이 여기 표시돼요</div>
