@@ -117,9 +117,14 @@
     }
 
     function toggle(key) {
-      if (selected.has(key)) selected.delete(key); else selected.add(key);
-      render(); updateBtn();
-    }
+  if (selected.has(key)) {
+    selected.clear();
+  } else {
+    selected.clear();
+    selected.add(key);
+  }
+  render(); updateBtn();
+}
 
     function renderTags() {
       const wrap = document.getElementById('selected-wrap');
