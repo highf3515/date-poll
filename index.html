@@ -11,8 +11,8 @@
   <div class="card">
     <h1 style="margin-bottom:1rem;">📅 날짜 조율</h1>
     <h2 style="font-size:18px; font-weight:500; margin-bottom:1rem;">로그인 / 회원가입</h2>
-    <label>이메일</label>
-    <input type="text" id="auth-email" placeholder="email@example.com">
+    <label>아이디</label>
+    <input type="text" id="auth-email" placeholder="영문, 숫자 (예: abcd123)">
     <label>비밀번호</label>
     <input type="password" id="auth-password" placeholder="6자 이상">
     <button class="btn" onclick="signUp()" style="margin-bottom:8px;">회원가입</button>
@@ -23,22 +23,22 @@
   <script src="supabase.js"></script>
   <script>
     async function signUp() {
-      const email = document.getElementById('auth-email').value.trim();
-      const password = document.getElementById('auth-password').value;
-      if (!email || !password) { alert('이메일과 비밀번호를 입력해줘!'); return; }
-      const { error } = await db.auth.signUp({ email, password });
-      if (error) { alert('오류: ' + error.message); return; }
-      alert('가입 완료! 로그인 해줘');
-    }
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  if (!email || !password) { alert('아이디와 비밀번호를 입력해줘!'); return; }
+  const { error } = await db.auth.signUp({ email: email + '@dateapp.local', password });
+  if (error) { alert('오류: ' + error.message); return; }
+  alert('가입 완료! 로그인 해줘');
+}
 
-    async function signIn() {
-      const email = document.getElementById('auth-email').value.trim();
-      const password = document.getElementById('auth-password').value;
-      if (!email || !password) { alert('이메일과 비밀번호를 입력해줘!'); return; }
-      const { error } = await db.auth.signInWithPassword({ email, password });
-      if (error) { alert('오류: ' + error.message); return; }
-      location.href = 'groups.html';
-    }
+async function signIn() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  if (!email || !password) { alert('아이디와 비밀번호를 입력해줘!'); return; }
+  const { error } = await db.auth.signInWithPassword({ email: email + '@dateapp.local', password });
+  if (error) { alert('오류: ' + error.message); return; }
+  location.href = 'groups.html';
+}
 
     (async () => {
       const { data } = await db.auth.getSession();
