@@ -208,7 +208,7 @@ input[type="text"]:focus {
 .small-btn { font-size: 12px; padding: 5px 12px; border: none; border-radius: 10px; background: white; cursor: pointer; color: #93ACB5; font-weight: 500; }
 .small-btn:hover { background: #A9D3FF; color: #2d4a5c; }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   body { padding: 1rem 0.5rem; }
   h1 { font-size: 18px; }
   .tab { padding: 6px 12px; font-size: 13px; }
