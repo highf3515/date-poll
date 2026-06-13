@@ -28,7 +28,11 @@
   if (!email || !password) { alert('아이디와 비밀번호를 입력해줘!'); return; }
   const { error } = await db.auth.signUp({ email: email + '@dateapp.local', password });
   if (error) { alert('오류: ' + error.message); return; }
-  alert('가입 완료! 로그인 해줘');
+
+  const { error: signInError } = await db.auth.signInWithPassword({ email: email + '@dateapp.local', password });
+  if (signInError) { alert('오류: ' + signInError.message); return; }
+
+  location.href = 'groups.html';
 }
 
 async function signIn() {
