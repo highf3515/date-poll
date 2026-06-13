@@ -75,18 +75,20 @@ h1 {
 
 .cal-day {
   text-align: center;
-  padding: 12px 4px;
+  padding: 0;
   border-radius: 50%;
   cursor: pointer;
   font-size: 14px;
   border: none;
   transition: all 0.15s;
   color: #3a4047;
-  aspect-ratio: 1;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  margin: 0 auto;
 }
 
 .cal-day:hover {
