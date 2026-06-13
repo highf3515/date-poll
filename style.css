@@ -9,21 +9,24 @@ body {
   max-width: 640px;
   margin: 0 auto;
   padding: 2rem 1rem;
-  color: #333;
+  color: #3a4047;
+  background: #F2F4FF;
 }
 
 h1 {
   font-size: 22px;
   font-weight: 500;
   margin-bottom: 1.5rem;
+  color: #6C756B;
 }
 
 .card {
   background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border: none;
+  border-radius: 20px;
   padding: 1.25rem;
   margin-bottom: 1rem;
+  box-shadow: 0 4px 16px rgba(108, 117, 107, 0.08);
 }
 
 .cal-header {
@@ -34,21 +37,23 @@ h1 {
 }
 
 .cal-nav {
-  background: none;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 4px 10px;
+  background: #F2F4FF;
+  border: none;
+  border-radius: 12px;
+  padding: 6px 14px;
   cursor: pointer;
   font-size: 14px;
+  color: #6C756B;
 }
 
 .cal-nav:hover {
-  background: #f3f4f6;
+  background: #A9D3FF;
 }
 
 .cal-month {
   font-size: 16px;
   font-weight: 500;
+  color: #3a4047;
 }
 
 .cal-grid {
@@ -60,68 +65,161 @@ h1 {
 .cal-dow {
   text-align: center;
   font-size: 12px;
-  color: #6b7280;
+  color: #93ACB5;
   padding: 4px 0;
+  font-weight: 500;
 }
 
 .cal-day {
   text-align: center;
-  padding: 8px 4px;
-  border-radius: 8px;
+  padding: 10px 4px;
+  border-radius: 14px;
   cursor: pointer;
   font-size: 14px;
-  border: 1px solid transparent;
-  transition: all 0.1s;
+  border: none;
+  transition: all 0.15s;
+  color: #3a4047;
 }
 
 .cal-day:hover {
-  background: #f3f4f6;
+  background: #F2F4FF;
 }
 
 .cal-day.selected {
-  background: #ede9fe;
-  border-color: #7c3aed;
-  color: #5b21b6;
-  font-weight: 50
+  background: #96C5F7;
+  color: white;
+  font-weight: 500;
+}
+
+.cal-day.empty {
+  cursor: default;
+}
+
+.cal-day.today {
+  background: #A9D3FF;
+  color: #3a4047;
+  font-weight: 500;
+}
+
+.cal-day.today.selected {
+  background: #96C5F7;
+  color: white;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0.75rem 0;
+}
+
+.tag {
+  background: #A9D3FF;
+  color: #2d4a5c;
+  font-size: 13px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tag-x {
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  color: #2d4a5c;
+}
+
+.tag-x:hover {
+  opacity: 0.6;
+}
+
+label {
+  font-size: 14px;
+  color: #93ACB5;
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: #F2F4FF;
+  border-radius: 12px;
+  font-size: 14px;
+  margin-bottom: 1rem;
+  color: #3a4047;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #96C5F7;
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: #96C5F7;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn:hover {
+  background: #7fb5ee;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hint {
+  font-size: 13px;
+  color: #93ACB5;
+  margin-bottom: 0.75rem;
+}
+
+.poll-item {
+  border: none;
+  background: #F2F4FF;
+  padding: 1rem;
+  border-radius: 14px;
+  margin-bottom: 8px;
 }
 
 .tabs { display: flex; gap: 8px; margin-bottom: 1rem; }
-    .tab { padding: 8px 20px; border: 1px solid #d1d5db; border-radius: 20px; cursor: pointer; font-size: 14px; background: white; }
-    .tab.active { background: #7c3aed; color: white; border-color: #7c3aed; }
-    .section { display: none; }
-    .section.active { display: block; }
-    .availability-grid { overflow-x: auto; }
-    .availability-grid table { border-collapse: collapse; width: 100%; }
-    .availability-grid th { font-size: 12px; color: #6b7280; padding: 6px 8px; text-align: center; border: 1px solid #e5e7eb; }
-    .availability-grid td { padding: 6px 8px; text-align: center; border: 1px solid #e5e7eb; font-size: 13px; }
-    .avail-cell { width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: auto; }
-    .avail-cell.on { background: #ede9fe; color: #7c3aed; }
-    .avail-cell.off { background: #f3f4f6; color: #9ca3af; }
- .tabs { display: flex; gap: 8px; margin-bottom: 1rem; }
-    .tab { padding: 8px 20px; border: 1px solid #d1d5db; border-radius: 20px; cursor: pointer; font-size: 14px; background: white; }
-    .tab.active { background: #7c3aed; color: white; border-color: #7c3aed; }
-    .section { display: none; }
-    .section.active { display: block; }
-    .cal-day { position: relative; }
-    .cal-dot { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background: #7c3aed; }
-    .info-panel { margin-top: 0.75rem; border-top: 1px solid #e5e7eb; padding-top: 0.75rem; }
-    .info-panel.empty { color: #9ca3af; font-size: 13px; }
-    .info-item { background: #f9fafb; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
-    .small-btn { font-size: 12px; padding: 4px 10px; border: 1px solid #d1d5db; border-radius: 6px; background: white; cursor: pointer; color: #6b7280; }
-    .small-btn:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+.tab { padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; background: white; color: #93ACB5; font-weight: 500; }
+.tab.active { background: #6C756B; color: white; }
+.section { display: none; }
+.section.active { display: block; }
+.cal-day { position: relative; }
+.cal-dot { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background: #96C5F7; }
+.info-panel { margin-top: 0.75rem; border-top: 1px solid #F2F4FF; padding-top: 0.75rem; }
+.info-panel.empty { color: #93ACB5; font-size: 13px; }
+.info-item { background: #F2F4FF; border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; }
+.small-btn { font-size: 12px; padding: 5px 12px; border: none; border-radius: 10px; background: white; cursor: pointer; color: #93ACB5; font-weight: 500; }
+.small-btn:hover { background: #A9D3FF; color: #2d4a5c; }
+
 @media (max-width: 480px) {
   body { padding: 1rem 0.5rem; }
   h1 { font-size: 18px; }
   .tab { padding: 6px 12px; font-size: 13px; }
   .card { padding: 0.875rem; }
-  .cal-day { padding: 4px 2px; font-size: 12px; min-height: 36px; }
+  .cal-day { padding: 6px 2px; font-size: 12px; min-height: 36px; }
   .cal-month { font-size: 14px; }
-  .cal-nav { padding: 4px 8px; font-size: 13px; }
+  .cal-nav { padding: 4px 10px; font-size: 13px; }
   .cal-dow { font-size: 10px; padding: 2px 0; }
   .selected-tags .tag { font-size: 11px; padding: 3px 8px; }
-  input[type="text"] { font-size: 13px; padding: 7px 10px; }
-  .btn { font-size: 14px; padding: 9px; }
+  input[type="text"] { font-size: 13px; padding: 8px 12px; }
+  .btn { font-size: 14px; padding: 10px; }
   .info-item { padding: 8px 10px; font-size: 13px; }
-  .small-btn { font-size: 11px; padding: 3px 8px; }
+  .small-btn { font-size: 11px; padding: 4px 8px; }
   .info-item input[type="text"] { width: 50% !important; }
 }
