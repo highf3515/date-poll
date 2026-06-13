@@ -317,9 +317,8 @@ async function loadPollData() {
       }
       panel.className = 'info-panel';
       panel.innerHTML = '<div style="font-weight:500; margin-bottom:8px;">' + fmtDisplay(key) + ' — ' + matches.length + '명 가능</div>' +
-        matches.map(a => `<div class="info-item" style="display:flex; justify-content:space-between; align-items:center;">
+        matches.map(a => `<div class="info-item">
           <span>${a.user_name}</span>
-          <button class="small-btn" onclick="deleteAvail(${a.id})">삭제</button>
         </div>`).join('');
     }
 
