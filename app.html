@@ -151,7 +151,7 @@
     async function createPoll() {
   const title = document.getElementById('title-input').value.trim();
   if (!title) { document.getElementById('title-input').focus(); return; }
-  const { data: poll, error } = await db.from('polls').insert({ title, group_id: currentGroup.id }).select().single();
+  const { data: poll, error } = await db.from('polls').insert({ title, group_id: currentGroup.id, created_by: currentUser.id }).select().single();
   if (error) { alert('오류: ' + error.message); return; }
   const dateRows = [...selected].sort().map(date => ({ poll_id: poll.id, date }));
   const { data: insertedDates, error: dateError } = await db.from('poll_dates').insert(dateRows).select();
@@ -169,16 +169,26 @@
   render(); updateBtn();
 }
 
-    async function loadPollData() {
-      const { data: polls } = await db.from('polls').select('*').eq('group_id', currentGroup.id);
-      allPolls = polls || [];
-      const pollIds = allPolls.map(p => p.id);
-      if (pollIds.length === 0) { allPollDates = []; allVotes = []; return; }
-      const { data: dates } = await db.from('poll_dates').select('*').in('poll_id', pollIds);
-      const { data: votes } = await db.from('votes').select('*').in('poll_id', pollIds);
-      allPollDates = dates || [];
-      allVotes = votes || [];
-    }
+   let groupMembers = [];
+
+async function loadPollData() {
+  const { data: polls } = await db.from('polls').select('*').eq('group_id', currentGroup.id);
+  allPolls = polls || [];
+  const pollIds = allPolls.map(p => p.id);
+  if (pollIds.length === 0) { allPollDates = []; allVotes = []; }
+  else {
+    const { data: dates } = await db.from('poll_dates').select('*').in('poll_id', pollIds);
+    const { data: votes } = await db.from('votes').select('*').in('poll_id', pollIds);
+    allPollDates = dates || [];
+    allVotes = votes || [];
+  }
+  const { data: members } = await db.from('group_members').select('*').eq('group_id', currentGroup.id);
+  groupMembers = members || [];
+}
+    function getMemberName(userId) {
+  const member = groupMembers.find(m => m.user_id === userId);
+  return member ? member.display_name : '알 수 없음';
+}
 
     function showPollDateInfo(key) {
       activePollDate = key;
@@ -197,7 +207,10 @@
           const names = votesForDate.map(v => v.user_name).join(', ') || '아직 없음';
           return `<div class="info-item">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong>${poll ? poll.title : '(삭제됨)'}</strong>
+              <div>
+  <strong>${poll ? poll.title : '(삭제됨)'}</strong>
+  <span style="font-size:11px; color:#93ACB5; margin-left:6px;">by ${poll ? getMemberName(poll.created_by) : '?'}</span>
+</div>
               <button class="small-btn" onclick="deletePollDate(${pd.poll_id}, ${pd.id})">이 날짜 삭제</button>
             </div>
             <div style="font-size:13px; color:#93ACB5; margin-top:4px;">👍 ${votesForDate.length}명 가능 — ${names}</div>
@@ -218,17 +231,19 @@
     }
 
     async function deletePollDate(pollId, pollDateId) {
-      if (!confirm('이 날짜를 삭제할까요? 이 날짜의 투표도 같이 삭제돼요.')) return;
-      await db.from('votes').delete().eq('date_id', pollDateId);
-      await db.from('poll_dates').delete().eq('id', pollDateId);
-      const { data: remaining } = await db.from('poll_dates').select('id').eq('poll_id', pollId);
-      if (!remaining || remaining.length === 0) {
-        await db.from('polls').delete().eq('id', pollId);
-      }
-      await loadPollData();
-      render();
-      showPollDateInfo(activePollDate);
-    }
+  const poll = allPolls.find(p => p.id === pollId);
+  if (poll.created_by !== currentUser.id) { alert('약속을 만든 사람만 삭제할 수 있어요!'); return; }
+  if (!confirm('이 날짜를 삭제할까요? 이 날짜의 투표도 같이 삭제돼요.')) return;
+  await db.from('votes').delete().eq('date_id', pollDateId);
+  await db.from('poll_dates').delete().eq('id', pollDateId);
+  const { data: remaining } = await db.from('poll_dates').select('id').eq('poll_id', pollId);
+  if (!remaining || remaining.length === 0) {
+    await db.from('polls').delete().eq('id', pollId);
+  }
+  await loadPollData();
+  render();
+  showPollDateInfo(activePollDate);
+}
 
     // ── 탭2: 가능한 날짜 ──
     const availSelected = new Set();
