@@ -325,7 +325,7 @@ input[type="password"]:focus {
   h1 { font-size: 18px; }
   .tab { padding: 6px 12px; font-size: 13px; }
   .card { padding: 0.875rem; }
-  .cal-day { padding: 6px 2px; font-size: 12px; min-height: 36px; }
+  .cal-day { padding: 6px 2px; font-size: 12px; min-height: 36px; width: 34px;height: 34px;}
   .cal-month { font-size: 14px; }
   .cal-nav { padding: 4px 10px; font-size: 13px; }
   .cal-dow { font-size: 10px; padding: 2px 0; }
