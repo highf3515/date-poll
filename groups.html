@@ -121,7 +121,7 @@
     (async () => {
       currentUser = await requireAuth();
       if (!currentUser) return;
-      document.getElementById('user-email').textContent = currentUser.email;
+      document.getElementById('user-email').textContent = currentUser.email.replace('@dateapp.local', '');
       await loadMyGroups();
     })();
   </script>
