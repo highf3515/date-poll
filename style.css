@@ -61,51 +61,79 @@ h1 {
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 6px;
 }
 
 .cal-dow {
   text-align: center;
   font-size: 12px;
   color: #93ACB5;
-  padding: 4px 0;
+  padding: 8px 0;
   font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .cal-day {
   text-align: center;
-  padding: 10px 4px;
-  border-radius: 14px;
+  padding: 12px 4px;
+  border-radius: 50%;
   cursor: pointer;
   font-size: 14px;
   border: none;
   transition: all 0.15s;
   color: #3a4047;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
 
 .cal-day:hover {
   background: #F2F4FF;
+  transform: scale(1.05);
 }
 
 .cal-day.selected {
   background: #96C5F7;
   color: white;
   font-weight: 500;
+  box-shadow: 0 4px 12px rgba(150, 197, 247, 0.4);
 }
 
 .cal-day.empty {
   cursor: default;
 }
 
+.cal-day.empty:hover {
+  background: transparent;
+  transform: none;
+}
+
 .cal-day.today {
-  background: #A9D3FF;
-  color: #3a4047;
-  font-weight: 500;
+  background: #6C756B;
+  color: white;
+  font-weight: 600;
 }
 
 .cal-day.today.selected {
   background: #96C5F7;
   color: white;
+}
+
+.cal-dot {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #96C5F7;
+}
+
+.cal-day.selected .cal-dot {
+  background: white;
 }
 
 .selected-tags {
