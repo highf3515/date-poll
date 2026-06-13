@@ -266,10 +266,12 @@ async function loadPollData() {
       for (let i = 0; i < first; i++) {
         const d = document.createElement('div'); d.className = 'cal-day empty'; grid.appendChild(d);
       }
+     const today = new Date();
       for (let d = 1; d <= days; d++) {
         const key = fmt(y, m, d);
         const el = document.createElement('div');
         el.className = 'cal-day' + (availSelected.has(key) ? ' selected' : '');
+        if (today.getFullYear() === y && today.getMonth() === m && today.getDate() === d) el.classList.add('today');
         el.textContent = d;
         const namesForDay = allAvailability.filter(a => a.date === key).map(a => a.user_name);
         if (namesForDay.length > 0) {
