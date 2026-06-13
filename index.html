@@ -187,7 +187,7 @@
           return `<div class="info-item">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <strong>${poll ? poll.title : '(삭제됨)'}</strong>
-              <button class="small-btn" onclick="deletePoll(${pd.poll_id})">약속 삭제</button>
+              <button class="small-btn" onclick="deletePollDate(${pd.poll_id}, ${pd.id})">이 날짜 삭제</button>
             </div>
             <div style="font-size:13px; color:#6b7280; margin-top:4px;">👍 ${votesForDate.length}명 가능 — ${names}</div>
             <div style="margin-top:8px;">
@@ -209,15 +209,20 @@
       showPollDateInfo(activePollDate);
     }
 
-    async function deletePoll(pollId) {
-      if (!confirm('이 약속을 삭제할까요? 투표 데이터도 같이 삭제돼요.')) return;
-      await db.from('votes').delete().eq('poll_id', pollId);
-      await db.from('poll_dates').delete().eq('poll_id', pollId);
-      await db.from('polls').delete().eq('id', pollId);
-      await loadPollData();
-      render();
-      showPollDateInfo(activePollDate);
-    }
+   async function deletePollDate(pollId, pollDateId) {
+  if (!confirm('이 날짜를 삭제할까요? 이 날짜의 투표도 같이 삭제돼요.')) return;
+  await db.from('votes').delete().eq('date_id', pollDateId);
+  await db.from('poll_dates').delete().eq('id', pollDateId);
+
+  const { data: remaining } = await db.from('poll_dates').select('id').eq('poll_id', pollId);
+  if (!remaining || remaining.length === 0) {
+    await db.from('polls').delete().eq('id', pollId);
+  }
+
+  await loadPollData();
+  render();
+  showPollDateInfo(activePollDate);
+}
 
     document.getElementById('prev').onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1); render(); };
     document.getElementById('next').onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1); render(); };
@@ -244,11 +249,13 @@
         const el = document.createElement('div');
         el.className = 'cal-day' + (availSelected.has(key) ? ' selected' : '');
         el.textContent = d;
-        if (allAvailability.some(a => a.date === key)) {
-          const dot = document.createElement('div');
-          dot.className = 'cal-dot';
-          el.appendChild(dot);
-        }
+        const namesForDay = allAvailability.filter(a => a.date === key).map(a => a.user_name);
+if (namesForDay.length > 0) {
+  const nameTag = document.createElement('div');
+  nameTag.style.cssText = 'font-size:9px; color:#7c3aed; margin-top:2px; line-height:1.2; max-height:24px; overflow:hidden;';
+  nameTag.textContent = namesForDay.join(', ');
+  el.appendChild(nameTag);
+}
         el.onclick = () => {
           if (availSelected.has(key)) availSelected.delete(key); else availSelected.add(key);
           renderAvail(); renderAvailTags(); showAvailDateInfo(key);
@@ -290,10 +297,13 @@
       }
       panel.className = 'info-panel';
       panel.innerHTML = '<div style="font-weight:500; margin-bottom:8px;">' + fmtDisplay(key) + ' — ' + matches.length + '명 가능</div>' +
-        matches.map(a => `<div class="info-item" style="display:flex; justify-content:space-between; align-items:center;">
-          <span>${a.user_name}</span>
-          <button class="small-btn" onclick="deleteAvail(${a.id})">삭제</button>
-        </div>`).join('');
+  matches.map(a => `<div class="info-item" style="display:flex; justify-content:space-between; align-items:center;">
+    <span>${a.user_name}</span>
+    <span>
+      <button class="small-btn" style="color:#7c3aed; border-color:#7c3aed;" onclick="editAvail(${a.id}, '${a.date}', '${a.user_name}')">수정</button>
+      <button class="small-btn" onclick="deleteAvail(${a.id})">삭제</button>
+    </span>
+  </div>`).join('');
     }
 
     async function deleteAvail(id) {
@@ -317,6 +327,14 @@
       renderAvail(); renderAvailTags();
       if (activeAvailDate) showAvailDateInfo(activeAvailDate);
     }
+    function editAvail(id, date, name) {
+  document.getElementById('avail-name').value = name;
+  availSelected.clear();
+  availSelected.add(date);
+  renderAvail();
+  renderAvailTags();
+  alert('날짜와 이름이 입력란에 채워졌어요. 날짜를 수정한 뒤 "저장하기"를 누르면 업데이트돼요!');
+}
 
     document.getElementById('avail-prev').onclick = () => { availCur = new Date(availCur.getFullYear(), availCur.getMonth() - 1, 1); renderAvail(); };
     document.getElementById('avail-next').onclick = () => { availCur = new Date(availCur.getFullYear(), availCur.getMonth() + 1, 1); renderAvail(); };
