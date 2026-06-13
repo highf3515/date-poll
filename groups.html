@@ -42,32 +42,37 @@
     }
 
     async function loadMyGroups() {
-      const { data: memberships, error } = await db
-        .from('group_members')
-        .select('*, groups(*)')
-        .eq('user_id', currentUser.id);
+  const { data: memberships, error } = await db
+    .from('group_members')
+    .select('*, groups(*)')
+    .eq('user_id', currentUser.id);
 
-      const container = document.getElementById('my-groups');
-      if (error) { container.innerHTML = '<p style="color:#93ACB5; font-size:13px;">오류: ' + error.message + '</p>'; return; }
+  const container = document.getElementById('my-groups');
+  if (error) { container.innerHTML = '<p style="color:#93ACB5; font-size:13px;">오류: ' + error.message + '</p>'; return; }
 
-      if (!memberships || memberships.length === 0) {
-        container.innerHTML = '<p style="color:#93ACB5; font-size:13px; margin-bottom:1rem;">아직 참여한 그룹이 없어요</p>';
-        return;
-      }
+  if (!memberships || memberships.length === 0) {
+    container.innerHTML = '<p style="color:#93ACB5; font-size:13px; margin-bottom:1rem;">아직 참여한 그룹이 없어요</p>';
+    return;
+  }
 
-      container.innerHTML = memberships.map(m => `
-        <div class="card">
-          <div style="cursor:pointer;" onclick='enterGroup(${m.groups.id}, ${JSON.stringify(m.groups.name)}, ${JSON.stringify(m.groups.invite_code)}, ${JSON.stringify(m.display_name)})'>
-            <div style="font-weight:500;">${m.groups.name}</div>
-            <div style="font-size:12px; color:#93ACB5; margin-top:4px;">내 이름: ${m.display_name}</div>
-          </div>
-          <div style="font-size:12px; color:#93ACB5; margin-top:8px; display:flex; align-items:center; gap:6px;">
-            초대코드: ${m.groups.invite_code}
-            <button class="small-btn" style="padding:2px 8px; font-size:11px;" onclick='event.stopPropagation(); copyCode(${JSON.stringify(m.groups.invite_code)})'>초대코드 복사</button>
-          </div>
-        </div>
-      `).join('');
-    }
+  for (const m of memberships) {
+    const { count } = await db.from('group_members').select('*', { count: 'exact', head: true }).eq('group_id', m.groups.id);
+    m.memberCount = count;
+  }
+
+  container.innerHTML = memberships.map(m => `
+    <div class="card">
+      <div style="cursor:pointer;" onclick='enterGroup(${m.groups.id}, ${JSON.stringify(m.groups.name)}, ${JSON.stringify(m.groups.invite_code)}, ${JSON.stringify(m.display_name)})'>
+        <div style="font-weight:500;">${m.groups.name} <span style="font-size:12px; color:#93ACB5; font-weight:400;">(${m.memberCount}명)</span></div>
+        <div style="font-size:12px; color:#93ACB5; margin-top:4px;">내 이름: ${m.display_name}</div>
+      </div>
+      <div style="font-size:12px; color:#93ACB5; margin-top:8px; display:flex; align-items:center; gap:6px;">
+        초대코드: ${m.groups.invite_code}
+        <button class="small-btn" style="padding:2px 8px; font-size:11px;" onclick='event.stopPropagation(); copyCode(${JSON.stringify(m.groups.invite_code)})'>복사</button>
+      </div>
+    </div>
+  `).join('');
+}
 
     function copyCode(code) {
       navigator.clipboard.writeText(code);
