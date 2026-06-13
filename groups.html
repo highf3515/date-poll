@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>날짜 조율 - 그룹</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+    <span id="user-email" style="font-size:13px; color:#93ACB5;"></span>
+    <button class="small-btn" onclick="signOut()">로그아웃</button>
+  </div>
+
+  <h1>📂 내 그룹</h1>
+  <div id="my-groups"></div>
+
+  <div class="card">
+    <label>새 그룹 만들기</label>
+    <input type="text" id="new-group-name" placeholder="그룹 이름 (예: 우리팀)">
+    <input type="text" id="new-display-name" placeholder="이 그룹에서 쓸 내 이름">
+    <button class="btn" onclick="createGroup()">그룹 만들기</button>
+  </div>
+
+  <div class="card">
+    <label>초대코드로 참여하기</label>
+    <input type="text" id="join-code" placeholder="초대코드 입력">
+    <input type="text" id="join-display-name" placeholder="이 그룹에서 쓸 내 이름">
+    <button class="btn" onclick="joinGroup()" style="background:#6C756B;">참여하기</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase.js"></script>
+  <script>
+    let currentUser = null;
+
+    async function signOut() {
+      await db.auth.signOut();
+      localStorage.removeItem('currentGroup');
+      location.href = 'index.html';
+    }
+
+    async function loadMyGroups() {
+      const { data: memberships, error } = await db
+        .from('group_members')
+        .select('*, groups(*)')
+        .eq('user_id', currentUser.id);
+
+      const container = document.getElementById('my-groups');
+      if (error) { container.innerHTML = '<p style="color:#93ACB5; font-size:13px;">오류: ' + error.message + '</p>'; return; }
+
+      if (!memberships || memberships.length === 0) {
+        container.innerHTML = '<p style="color:#93ACB5; font-size:13px; margin-bottom:1rem;">아직 참여한 그룹이 없어요</p>';
+        return;
+      }
+
+      container.innerHTML = memberships.map(m => `
+        <div class="card" style="cursor:pointer;" onclick='enterGroup(${m.groups.id}, ${JSON.stringify(m.groups.name)}, ${JSON.stringify(m.groups.invite_code)}, ${JSON.stringify(m.display_name)})'>
+          <div style="font-weight:500;">${m.groups.name}</div>
+          <div style="font-size:12px; color:#93ACB5; margin-top:4px;">내 이름: ${m.display_name} · 초대코드: ${m.groups.invite_code}</div>
+        </div>
+      `).join('');
+    }
+
+    function genInviteCode() {
+      const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      return code;
+    }
+
+    async function createGroup() {
+      const name = document.getElementById('new-group-name').value.trim();
+      const displayName = document.getElementById('new-display-name').value.trim();
+      if (!name || !displayName) { alert('그룹 이름과 내 이름을 입력해줘!'); return; }
+
+      const code = genInviteCode();
+      const { data: group, error } = await db.from('groups').insert({ name, invite_code: code }).select().single();
+      if (error) { alert('오류: ' + error.message); return; }
+
+      const { error: memberError } = await db.from('group_members').insert({
+        group_id: group.id, user_id: currentUser.id, display_name: displayName
+      });
+      if (memberError) { alert('오류: ' + memberError.message); return; }
+
+      alert('그룹 생성 완료! 초대코드: ' + code);
+      document.getElementById('new-group-name').value = '';
+      document.getElementById('new-display-name').value = '';
+      loadMyGroups();
+    }
+
+    async function joinGroup() {
+      const code = document.getElementById('join-code').value.trim().toUpperCase();
+      const displayName = document.getElementById('join-display-name').value.trim();
+      if (!code || !displayName) { alert('초대코드와 내 이름을 입력해줘!'); return; }
+
+      const { data: group, error } = await db.from('groups').select('*').eq('invite_code', code).single();
+      if (error || !group) { alert('초대코드를 찾을 수 없어요'); return; }
+
+      const { error: memberError } = await db.from('group_members').insert({
+        group_id: group.id, user_id: currentUser.id, display_name: displayName
+      });
+      if (memberError) {
+        if (memberError.message.includes('duplicate')) { alert('이미 참여한 그룹이에요!'); }
+        else { alert('오류: ' + memberError.message); }
+        return;
+      }
+
+      alert('그룹에 참여했어요! 🎉');
+      document.getElementById('join-code').value = '';
+      document.getElementById('join-display-name').value = '';
+      loadMyGroups();
+    }
+
+    function enterGroup(groupId, groupName, inviteCode, displayName) {
+      setCurrentGroup({ id: groupId, name: groupName, inviteCode, displayName });
+      location.href = 'app.html';
+    }
+
+    (async () => {
+      currentUser = await requireAuth();
+      if (!currentUser) return;
+      document.getElementById('user-email').textContent = currentUser.email;
+      await loadMyGroups();
+    })();
+  </script>
+</body>
+</html>
