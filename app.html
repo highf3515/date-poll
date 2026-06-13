@@ -373,6 +373,45 @@ async function loadPollData() {
   renderAvailTags();
 }
 
+    function copyInviteCode() {
+  navigator.clipboard.writeText(currentGroup.inviteCode);
+  alert('초대코드가 복사됐어요! 📋');
+}
+
+async function editMyName() {
+  const newName = prompt('새 이름을 입력해줘', currentGroup.displayName);
+  if (!newName || !newName.trim()) return;
+  const trimmed = newName.trim();
+  const oldName = currentGroup.displayName;
+
+  const { error: memberError } = await db.from('group_members')
+    .update({ display_name: trimmed })
+    .eq('group_id', currentGroup.id)
+    .eq('user_id', currentUser.id);
+  if (memberError) { alert('오류: ' + memberError.message); return; }
+
+  await db.from('votes').update({ user_name: trimmed })
+    .eq('group_id', currentGroup.id)
+    .eq('user_name', oldName);
+
+  const pollIds = allPolls.map(p => p.id);
+  if (pollIds.length > 0) {
+    await db.from('votes').update({ user_name: trimmed })
+      .in('poll_id', pollIds)
+      .eq('user_name', oldName);
+  }
+
+  await db.from('availability').update({ user_name: trimmed })
+    .eq('group_id', currentGroup.id)
+    .eq('user_name', oldName);
+
+  currentGroup.displayName = trimmed;
+  setCurrentGroup(currentGroup);
+
+  alert('이름이 변경됐어요! 🎉');
+  location.reload();
+}
+
     document.getElementById('prev').onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1); render(); };
     document.getElementById('next').onclick = () => { cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1); render(); };
     document.getElementById('create-btn').onclick = createPoll;
