@@ -222,13 +222,15 @@ async function loadPollData() {
     }
 
     async function quickVote(pollId, dateId) {
-      const name = currentGroup.displayName;
-      const { error } = await db.from('votes').insert({ poll_id: pollId, user_name: name, date_id: dateId, available: true });
-      if (error) { alert('오류: ' + error.message); return; }
-      await loadPollData();
-      render();
-      showPollDateInfo(activePollDate);
-    }
+  const name = currentGroup.displayName;
+  const already = allVotes.some(v => v.date_id === dateId && v.user_name === name && v.available);
+  if (already) { alert('이미 투표했어요!'); return; }
+  const { error } = await db.from('votes').insert({ poll_id: pollId, user_name: name, date_id: dateId, available: true });
+  if (error) { alert('오류: ' + error.message); return; }
+  await loadPollData();
+  render();
+  showPollDateInfo(activePollDate);
+}
 
     async function deletePollDate(pollId, pollDateId) {
   const poll = allPolls.find(p => p.id === pollId);
