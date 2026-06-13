@@ -338,15 +338,13 @@ if (namesForDay.length > 0) {
   if (!confirm('이 항목을 수정할까요? (기존 데이터는 삭제되고, 새로 입력 후 저장해야 해요)')) return;
   await db.from('availability').delete().eq('id', id);
   await loadAvailData();
-  renderAvail();
-  if (activeAvailDate) showAvailDateInfo(activeAvailDate);
-
-  document.getElementById('avail-name').value = name;
   availSelected.clear();
   availSelected.add(date);
   renderAvail();
   renderAvailTags();
+  if (activeAvailDate) showAvailDateInfo(activeAvailDate);
 
+  document.getElementById('avail-name').value = name;
   document.getElementById('avail-name').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
