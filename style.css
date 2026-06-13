@@ -190,6 +190,22 @@ input[type="text"]:focus {
   outline: none;
   box-shadow: 0 0 0 2px #96C5F7;
 }
+input[type="password"] {
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: #F2F4FF;
+  border-radius: 12px;
+  font-size: 14px;
+  margin-bottom: 1rem;
+  color: #3a4047;
+}
+
+input[type="password"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #96C5F7;
+}
+
 
 .btn {
   width: 100%;
