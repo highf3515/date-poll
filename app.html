@@ -427,11 +427,13 @@ async function editMyName() {
       currentGroup = getCurrentGroup();
       if (!currentGroup) { location.href = 'groups.html'; return; }
 
+      const { count: memberCount } = await db.from('group_members').select('*', { count: 'exact', head: true }).eq('group_id', currentGroup.id);
+      
       document.getElementById('group-info').innerHTML = `
-        <div style="font-weight:500;">${currentGroup.name}</div>
+        <div style="font-weight:500;">${currentGroup.name} <span style="font-size:12px; color:#93ACB5; font-weight:400;">(${memberCount}명)</span></div>
         <div style="font-size:12px; color:#93ACB5; margin-top:4px; display:flex; align-items:center; gap:6px;">
           초대코드: ${currentGroup.inviteCode} · 내 이름: ${currentGroup.displayName}
-          <button class="small-btn" style="padding:2px 8px; font-size:11px;" onclick="copyInviteCode()">초대코드 복사</button>
+          <button class="small-btn" style="padding:2px 8px; font-size:11px;" onclick="copyInviteCode()">복사</button>
           <button class="small-btn" style="padding:2px 8px; font-size:11px;" onclick="editMyName()">이름 수정</button>
         </div>
       `;
