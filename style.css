@@ -97,3 +97,15 @@ h1 {
     .avail-cell { width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: auto; }
     .avail-cell.on { background: #ede9fe; color: #7c3aed; }
     .avail-cell.off { background: #f3f4f6; color: #9ca3af; }
+ .tabs { display: flex; gap: 8px; margin-bottom: 1rem; }
+    .tab { padding: 8px 20px; border: 1px solid #d1d5db; border-radius: 20px; cursor: pointer; font-size: 14px; background: white; }
+    .tab.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .cal-day { position: relative; }
+    .cal-dot { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background: #7c3aed; }
+    .info-panel { margin-top: 0.75rem; border-top: 1px solid #e5e7eb; padding-top: 0.75rem; }
+    .info-panel.empty { color: #9ca3af; font-size: 13px; }
+    .info-item { background: #f9fafb; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+    .small-btn { font-size: 12px; padding: 4px 10px; border: 1px solid #d1d5db; border-radius: 6px; background: white; cursor: pointer; color: #6b7280; }
+    .small-btn:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
