@@ -233,12 +233,43 @@ input[type="text"]:focus {
 .section.active { display: block; }
 .cal-day { position: relative; }
 .cal-dot { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background: #96C5F7; }
-.info-panel { margin-top: 0.75rem; border-top: 1px solid #F2F4FF; padding-top: 0.75rem; }
-.info-panel.empty { color: #93ACB5; font-size: 13px; }
-.info-item { background: #F2F4FF; border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; }
-.small-btn { font-size: 12px; padding: 5px 12px; border: none; border-radius: 10px; background: white; cursor: pointer; color: #93ACB5; font-weight: 500; }
-.small-btn:hover { background: #A9D3FF; color: #2d4a5c; }
+.info-panel {
+  margin-top: 1rem;
+  border-top: none;
+  padding-top: 0;
+}
 
+.info-panel.empty {
+  color: #93ACB5;
+  font-size: 13px;
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.info-item {
+  background: white;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-left: 4px solid #96C5F7;
+  box-shadow: 0 2px 8px rgba(108, 117, 107, 0.06);
+}
+
+.small-btn {
+  font-size: 12px;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 10px;
+  background: #F2F4FF;
+  cursor: pointer;
+  color: #6C756B;
+  font-weight: 500;
+}
+
+.small-btn:hover {
+  background: #A9D3FF;
+  color: #2d4a5c;
+}
 @media (max-width: 768px) {
   body { padding: 1rem 0.5rem; }
   h1 { font-size: 18px; }
