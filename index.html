@@ -327,13 +327,20 @@ if (namesForDay.length > 0) {
       renderAvail(); renderAvailTags();
       if (activeAvailDate) showAvailDateInfo(activeAvailDate);
     }
-    function editAvail(id, date, name) {
+    async function editAvail(id, date, name) {
+  if (!confirm('이 항목을 수정할까요? (기존 데이터는 삭제되고, 새로 입력 후 저장해야 해요)')) return;
+  await db.from('availability').delete().eq('id', id);
+  await loadAvailData();
+  renderAvail();
+  if (activeAvailDate) showAvailDateInfo(activeAvailDate);
+
   document.getElementById('avail-name').value = name;
   availSelected.clear();
   availSelected.add(date);
   renderAvail();
   renderAvailTags();
-  alert('날짜와 이름이 입력란에 채워졌어요. 날짜를 수정한 뒤 "저장하기"를 누르면 업데이트돼요!');
+
+  document.getElementById('avail-name').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
     document.getElementById('avail-prev').onclick = () => { availCur = new Date(availCur.getFullYear(), availCur.getMonth() - 1, 1); renderAvail(); };
