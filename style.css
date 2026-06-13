@@ -330,8 +330,11 @@ input[type="password"]:focus {
   .cal-dow { font-size: 10px; padding: 2px 0; }
   .selected-tags .tag { font-size: 11px; padding: 3px 8px; }
   input[type="text"] { font-size: 13px; padding: 8px 12px; }
+  input[type="password"] { font-size: 13px; padding: 8px 12px; }
   .btn { font-size: 14px; padding: 10px; }
   .info-item { padding: 8px 10px; font-size: 13px; }
   .small-btn { font-size: 11px; padding: 4px 8px; }
   .info-item input[type="text"] { width: 50% !important; }
+  .info-item input[type="password"] { width: 50% !important; }
+  
 }
